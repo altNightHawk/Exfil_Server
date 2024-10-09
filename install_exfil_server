@@ -1,8 +1,9 @@
 #!/bin/bash
 ###################################
 ### Exfil Server Install Script ###
-###    Powered by NightHawk     ###
 ###################################
+
+###Need to add a check to determine if steamcmd is already installed
 
 ##############
 ###Configs####
