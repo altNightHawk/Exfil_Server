@@ -31,7 +31,7 @@ echo -n "Username for Server(username to install server under)? "
 read exfil_user
 exfil_user_home=/home/${exfil_user}
 
-echo -n "Server Name(name your servers shows as in host list)? "
+echo -n "Server Name(name your server shows as in host list)? "
 read server_name
 
 echo -n "Server Port(default 27015)? "
