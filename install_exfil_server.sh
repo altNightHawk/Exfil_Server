@@ -96,6 +96,24 @@ function fn_set_json_config_value {
   echo $(jq "${jq_args[@]}") > $config
 }
 
+fn_ask() {
+  # $1 = prompt
+  # $2 = optional default value
+
+  echo -n "${1} "
+  read l_user_input
+
+  if [ "${l_user_input}" = "y" ] || [ "${l_user_input}" = "yes" ] ; then
+    true
+  else
+    if [ -n "${2}" ] && [ -z "${l_user_input}" ]; then
+      $2
+    else
+      false
+    fi
+  fi
+}
+
 ##################
 # End: Functions #
 ##################
@@ -131,7 +149,7 @@ fn_get_user_input "Max. players on server (default: 32)?:" server_max_players 32
 fn_get_user_input "Server Port (default: 27015)?:" server_port 27015
 fn_get_user_input "Server Query Port (default: 7777)?:" query_port 7777
 fn_get_user_input "Additional Server Admins (optional, format: SteamID1=Name1;SteamID2=Name;SteamID3=Name3)?:" server_admin_list
-fn_get_user_input "Exfil Service Name (default: exfil)?:" exfil_service_name exfil
+
 
 if fn_is_installed steamcmd;
 then
@@ -226,8 +244,17 @@ EOF
 fn_set_json_config_value '.ServerName' "${server_name}" "${DEDICATED_SETTINGS_FILE}"
 fn_set_json_config_value '.MaxPlayerCount' "${server_max_players}" "${DEDICATED_SETTINGS_FILE}"
 
+echo "######################################################"
+echo "### Edit your configs:                             "
+echo "### ${exfil_user_home}/edit_server_settings_config "
+echo "### ${exfil_user_home}/edit_admin_settings_config   "
+echo "######################################################"
 
-echo "###Building Service Start Script: "
+
+if fn_ask "Do you want to setup a service?  ([y]es, [n]o)?:";
+then
+  fn_get_user_input "Exfil Service Name (default: exfil)?:" exfil_service_name exfil
+  echo "###Building Service Start Script: "
 cat <<EOF > /etc/systemd/system/${exfil_service_name}.service
         [Unit]
         Description=Exfil dedicated server
@@ -246,23 +273,20 @@ cat <<EOF > /etc/systemd/system/${exfil_service_name}.service
 
 EOF
 
+  echo "############################################"
+  echo "### Start Server:                        "
+  echo "### systemctl start ${exfil_service_name}"
+  echo "### Check Status:                        "
+  echo "### systemctl status ${exfil_service_name}"
+  echo "### enable start on boot                 "
+  echo "### systemctl enable ${exfil_service_name}"
+  echo "### view logs:                           "
+  echo "### journalctl -u ${exfil_service_name}.service -b -e -f "
+  echo "### stop server:                         "
+  echo "### systemctl stop ${exfil_service_name} "
+  echo "############################################"
+fi
+
 echo "########################"
 echo "### Install Complete "
 echo "########################"
-echo "######################################################"
-echo "### Edit your configs:                             "
-echo "### ${exfil_user_home}/edit_server_settings_config "
-echo "### ${exfil_user_home}/edit_admin_settings_config   "
-echo "######################################################"
-echo "############################################"
-echo "### Start Server:                        "
-echo "### systemctl start ${exfil_service_name}"
-echo "### Check Status:                        "
-echo "### systemctl status ${exfil_service_name}"
-echo "### enable start on boot                 "
-echo "### systemctl enable ${exfil_service_name}"
-echo "### view logs:                           "
-echo "### journalctl -u ${exfil_service_name}.service -b -e -f "
-echo "### stop server:                         "
-echo "### systemctl stop ${exfil_service_name} "
-echo "############################################"
