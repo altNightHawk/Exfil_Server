@@ -118,6 +118,7 @@ fi
 fn_get_required_user_input "Steam Username?:" steam_user_name "Steam Username is required. Please provide one!"
 fn_get_required_user_input "Steam User Password?:" steam_user_password "Steam User Password is required. Please provide one!"
 fn_get_required_user_input "Server Name (shown in server browser)?:" server_name "Server Name is required. Please provide one!"
+fn_get_user_input "Max. players on server (default: 32)?:" server_max_players 32
 fn_get_user_input "Server Port (default: 27015)?:" server_port 27015
 fn_get_user_input "Server Query Port (default: 7777)?:" query_port 7777
 fn_get_user_input "Exfil Service Name (default: exfil)?:" exfil_service_name exfil
@@ -159,7 +160,7 @@ sudo -u ${exfil_user} echo "/usr/games/steamcmd +force_install_dir ${exfil_user_
 chown -R ${exfil_user}:${exfil_user} /home/${exfil_user}
 
 
-cat <<EOF > ${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings/DedicatedSettings.JSON
+cat <<EOF > ${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings/ServerSettings.JSON
 {
     "admin": {
         "76561197972138706": "Misultin",
@@ -172,10 +173,10 @@ cat <<EOF > ${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings/Dedica
 }
 EOF
 
-cat <<EOF > ${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings/ServerSettings.JSON
+cat <<EOF > ${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings/DedicatedSettings.JSON
 {
     "ServerName": "${server_name}",
-    "MaxPlayerCount": "32"
+    "MaxPlayerCount": "${server_max_players}"
 }
 EOF
 
