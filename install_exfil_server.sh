@@ -124,11 +124,22 @@ echo "#########################################"
 
 fn_quit_if_not_admin
 
+if [ -n "${1}" ]; then
+  if [ ! -f ${1} ]; then
+    >&2 echo ".env file '${1}' was not found."
+    exit -1
+  fi
+
+  echo "Including variables from: ${1}"
+  . $1
+fi
+
+
 echo "##############################"
 echo "### Collecting Information "
 echo "##############################"
 
-fn_get_required_user_input "Username for Server (username to install server under)?:" exfil_user "Username for Server is required. Please provide one!"
+[ -n "${exfil_user}" ] || fn_get_required_user_input "Username for Server (username to install server under)?:" exfil_user "Username for Server is required. Please provide one!"
 
 if fn_user_exists ${exfil_user};
 then
@@ -142,14 +153,14 @@ else
   passwd ${exfil_user}
 fi
 
-fn_get_required_user_input "Steam Username?:" steam_user_name "Steam Username is required. Please provide one!"
-fn_get_required_user_input "Steam User Password?:" steam_user_password "Steam User Password is required. Please provide one!"
-fn_get_required_user_input "Server Name (shown in server browser)?:" server_name "Server Name is required. Please provide one!"
-fn_get_user_input "Server password (optional, default: none)?:" server_password
-fn_get_user_input "Max. players on server (optional, default: 32)?:" server_max_players 32
-fn_get_user_input "Server Port (optional, default: 27015)?:" server_port 27015
-fn_get_user_input "Server Query Port (optional, default: 7777)?:" query_port 7777
-fn_get_user_input "Additional Server Admins (optional, default: none, format: SteamID1=Name1;SteamID2=Name;SteamID3=Name3)?:" server_admin_list
+[ -n "${steam_user_name}" ] || fn_get_required_user_input "Steam Username?:" steam_user_name "Steam Username is required. Please provide one!"
+[ -n "${steam_user_password}" ] || fn_get_required_user_input "Steam User Password?:" steam_user_password "Steam User Password is required. Please provide one!"
+[ -n "${server_name}" ] || fn_get_required_user_input "Server Name (shown in server browser)?:" server_name "Server Name is required. Please provide one!"
+[ -n "${server_password}" ] || fn_get_user_input "Server password (optional, default: none)?:" server_password
+[ -n "${server_max_players}" ] || fn_get_user_input "Max. players on server (optional, default: 32)?:" server_max_players 32
+[ -n "${server_port}" ] || fn_get_user_input "Server Port (optional, default: 7777)?:" server_port 7777
+[ -n "${query_port}" ] || fn_get_user_input "Server Query Port (optional, default: 27015)?:" query_port 27015
+[ -n "${server_admin_list}" ] || fn_get_user_input "Additional Server Admins (optional, default: none, format: SteamID1=Name1;SteamID2=Name;SteamID3=Name3)?:" server_admin_list
 
 
 if fn_is_installed steamcmd;
@@ -253,9 +264,9 @@ echo "### ${exfil_user_home}/edit_admin_settings_config   "
 echo "######################################################"
 
 
-if fn_ask "Do you want to setup a service?  ([y]es, [n]o)?:";
+if [ -n "${exfil_service_name}" ] || fn_ask "Do you want to setup a service?  ([y]es, [n]o)?:";
 then
-  fn_get_user_input "Exfil Service Name (default: exfil)?:" exfil_service_name exfil
+  [ -n "${exfil_service_name}" ] || fn_get_user_input "Exfil Service Name (default: exfil)?:" exfil_service_name exfil
   echo "###Building Service Start Script: "
 cat <<EOF > /etc/systemd/system/${exfil_service_name}.service
         [Unit]

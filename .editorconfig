@@ -1,7 +1,7 @@
 # top-most EditorConfig file
 root = true
 
-[*.sh]
+[*.sh, *.env]
 end_of_line = lf
 charset = utf-8
 indent_style = space
