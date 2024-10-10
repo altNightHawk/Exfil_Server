@@ -83,6 +83,10 @@ fn_get_required_user_input() {
     done
 }
 
+fn_get_home_dir() {
+  getent passwd $1 | cut -d: -f6
+}
+
 ##################
 # End: Functions #
 ##################
@@ -98,8 +102,6 @@ echo "### Collecting Information "
 echo "##############################"
 
 fn_get_required_user_input "Username for Server (username to install server under)?:" exfil_user "Username for Server is required. Please provide one!"
-
-exfil_user_home=/home/${exfil_user}
 
 if fn_user_exists ${exfil_user};
 then
@@ -140,8 +142,9 @@ echo "#####################################################################"
 echo "### Downloading and installing Exfil Server on user ${exfil_user} "
 echo "#####################################################################"
 
+exfil_user_home=$(fn_get_home_dir ${exfil_user})
 cd ${exfil_user_home}
-sudo -u ${exfil_user} /usr/games/steamcmd +force_install_dir ${exfil_user_home}/exfil-dedicated +login ${steam_user_name} ${steam_user_password} +app_update 3093190 +quit
+sudo -u ${exfil_user} /usr/games/steamcmd +force_install_dir ${exfil_user_home}/exfil-dedicated +login ${steam_user_name} ${steam_user_password} +app_update ${steam_app_id} +quit
 sudo -u ${exfil_user} mkdir -p ${exfil_user_home}/.steam/sdk64
 sudo -u ${exfil_user} cp -f ${exfil_user_home}/.steam/steam/steamcmd/linux64/steamclient.so ${exfil_user_home}/.steam/sdk64/steamclient.so
 timeout 5s sudo -u ${exfil_user} ${exfil_user_home}/exfil-dedicated/ExfilServer.sh
@@ -151,7 +154,7 @@ echo "##############################"
 
 sudo -u ${exfil_user} echo "vi ${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings/DedicatedSettings.JSON" > ${exfil_user_home}/edit_server_settings_config && chmod +x ${exfil_user_home}/edit_server_settings_config
 sudo -u ${exfil_user} echo "vi ${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings/ServerSettings.JSON" > ${exfil_user_home}/edit_admin_settings_config && chmod +x ${exfil_user_home}/edit_admin_settings_config
-sudo -u ${exfil_user} echo "/usr/games/steamcmd +force_install_dir ${exfil_user_home}/exfil-dedicated +login ${steam_user_name} '${steam_user_password}' +app_update 3093190 +quit && ${exfil_user_home}/exfil-dedicated/ExfilServer.sh -port=${server_port} -QueryPort=${query_port}"  > ${exfil_user_home}/start_exfil_service && chmod +x ${exfil_user_home}/start_exfil_service
+sudo -u ${exfil_user} echo "/usr/games/steamcmd +force_install_dir ${exfil_user_home}/exfil-dedicated +login ${steam_user_name} '${steam_user_password}' +app_update ${steam_app_id} +quit && ${exfil_user_home}/exfil-dedicated/ExfilServer.sh -port=${server_port} -QueryPort=${query_port}"  > ${exfil_user_home}/start_exfil_service && chmod +x ${exfil_user_home}/start_exfil_service
 
 chown -R ${exfil_user}:${exfil_user} /home/${exfil_user}
 
