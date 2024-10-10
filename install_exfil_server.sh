@@ -145,10 +145,11 @@ fi
 fn_get_required_user_input "Steam Username?:" steam_user_name "Steam Username is required. Please provide one!"
 fn_get_required_user_input "Steam User Password?:" steam_user_password "Steam User Password is required. Please provide one!"
 fn_get_required_user_input "Server Name (shown in server browser)?:" server_name "Server Name is required. Please provide one!"
-fn_get_user_input "Max. players on server (default: 32)?:" server_max_players 32
-fn_get_user_input "Server Port (default: 27015)?:" server_port 27015
-fn_get_user_input "Server Query Port (default: 7777)?:" query_port 7777
-fn_get_user_input "Additional Server Admins (optional, format: SteamID1=Name1;SteamID2=Name;SteamID3=Name3)?:" server_admin_list
+fn_get_user_input "Server password (optional, default: none)?:" server_password
+fn_get_user_input "Max. players on server (optional, default: 32)?:" server_max_players 32
+fn_get_user_input "Server Port (optional, default: 27015)?:" server_port 27015
+fn_get_user_input "Server Query Port (optional, default: 7777)?:" query_port 7777
+fn_get_user_input "Additional Server Admins (optional, default: none, format: SteamID1=Name1;SteamID2=Name;SteamID3=Name3)?:" server_admin_list
 
 
 if fn_is_installed steamcmd;
@@ -243,6 +244,7 @@ EOF
 # set the properties using jq to avoid escape problems
 fn_set_json_config_value '.ServerName' "${server_name}" "${DEDICATED_SETTINGS_FILE}"
 fn_set_json_config_value '.MaxPlayerCount' "${server_max_players}" "${DEDICATED_SETTINGS_FILE}"
+fn_set_json_config_value '.ServerPassword' "${server_password}" "${DEDICATED_SETTINGS_FILE}"
 
 echo "######################################################"
 echo "### Edit your configs:                             "
