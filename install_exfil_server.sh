@@ -46,6 +46,43 @@ fn_is_installed() {
   fi
 }
 
+fn_get_user_input() {
+    # $1 = prompt
+    # $2 = variable name to set
+    # $3 = optional default value
+
+    echo -n "${1} "
+    read l_user_input
+
+
+    if [ -n "${3}" ] && [ -z "${l_user_input}" ]; then
+      l_user_input=$3
+    fi
+
+    export "${2}=${l_user_input}"
+}
+
+fn_get_required_user_input() {
+    # $1 = prompt
+    # $2 = variable name to set
+    # $3 = required message
+
+    counter=0;
+    while [ $counter -eq 0 ]
+    do
+      echo -n "${1} "
+      read l_user_input
+
+      if [ -n "${3}" ] && [ -z "${l_user_input}" ]; then
+        >&2 echo $3
+        continue
+      fi
+
+      export "${2}=${l_user_input}"
+      break
+    done
+}
+
 ##################
 # End: Functions #
 ##################
@@ -60,8 +97,8 @@ echo "##############################"
 echo "### Collecting Information "
 echo "##############################"
 
-echo -n "Username for Server (username to install server under)? "
-read exfil_user
+fn_get_required_user_input "Username for Server (username to install server under)?:" exfil_user "Username for Server is required. Please provide one!"
+
 exfil_user_home=/home/${exfil_user}
 
 if fn_user_exists ${exfil_user};
@@ -76,24 +113,12 @@ else
   passwd ${exfil_user}
 fi
 
-echo -n "Steam Username? "
-read steam_user_name
-
-echo -n "Steam User Password? "
-read steam_user_password
-
-echo -n "Server Name(name your server shows as in host list)? "
-read server_name
-
-echo -n "Server Port(default 27015)? "
-read server_port
-
-echo -n "Query Port(default 7777)? "
-read query_port
-
-echo -n "Exfil Service Name (default exfil)? "
-read exfil_service_name
-
+fn_get_required_user_input "Steam Username?:" steam_user_name "Steam Username is required. Please provide one!"
+fn_get_required_user_input "Steam User Password?:" steam_user_password "Steam User Password is required. Please provide one!"
+fn_get_required_user_input "Server Name (shown in server browser)?:" server_name "Server Name is required. Please provide one!"
+fn_get_user_input "Server Port (default: 27015)?:" server_port 27015
+fn_get_user_input "Server Query Port (default: 7777)?:" query_port 7777
+fn_get_user_input "Exfil Service Name (default: exfil)?:" exfil_service_name exfil
 
 if fn_is_installed steamcmd;
 then
