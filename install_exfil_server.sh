@@ -36,6 +36,16 @@ fn_quit_if_not_admin() {
   fi
 }
 
+fn_is_installed() {
+  aptOutput=$(apt -qq --installed list ${1} 2>/dev/null | grep -oP '\[installed\]$')
+
+  if [ "${aptOutput}" = "[installed]" ]; then
+    true
+  else
+    false
+  fi
+}
+
 ##################
 # End: Functions #
 ##################
@@ -84,16 +94,22 @@ read query_port
 echo -n "Exfil Service Name (default exfil)? "
 read exfil_service_name
 
-echo "#########################################"
-echo "### Downloading & Installing steamcmd "
-echo "#########################################"
 
-sudo add-apt-repository multiverse; sudo dpkg --add-architecture i386; sudo apt update
-sudo apt install steamcmd
+if fn_is_installed steamcmd;
+then
+  echo "### SteamCmd is already installed"
+else
+  echo "#########################################"
+  echo "### Downloading & Installing steamcmd "
+  echo "#########################################"
 
-echo "##########################"
-echo "### steamcmd installed "
-echo "##########################"
+  sudo add-apt-repository multiverse; sudo dpkg --add-architecture i386; sudo apt update
+  sudo apt install steamcmd
+
+  echo "##########################"
+  echo "### steamcmd installed "
+  echo "##########################"
+fi
 
 echo "#####################################################################"
 echo "### Downloading and installing Exfil Server on user ${exfil_user} "
