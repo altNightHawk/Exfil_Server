@@ -87,6 +87,15 @@ fn_get_home_dir() {
   getent passwd $1 | cut -d: -f6
 }
 
+function fn_set_json_config_value {
+  local key=$1
+  local value=$2
+  local config=$3
+
+  local jq_args=('--arg' 'value' "${value}" "${key} = \$value" "${config}" )
+  echo $(jq "${jq_args[@]}") > $config
+}
+
 ##################
 # End: Functions #
 ##################
@@ -139,6 +148,22 @@ else
   echo "##########################"
 fi
 
+if fn_is_installed jq;
+then
+  echo "### jq is already installed"
+else
+  echo "#########################################"
+  echo "### Downloading & Installing jq "
+  echo "#########################################"
+
+  sudo apt update
+  sudo apt-get install jq
+
+  echo "##########################"
+  echo "### jq installed "
+  echo "##########################"
+fi
+
 echo "#####################################################################"
 echo "### Downloading and installing Exfil Server on user ${exfil_user} "
 echo "#####################################################################"
@@ -148,11 +173,12 @@ cd ${exfil_user_home}
 sudo -u ${exfil_user} /usr/games/steamcmd +force_install_dir ${exfil_user_home}/exfil-dedicated +login ${steam_user_name} ${steam_user_password} +app_update ${steam_app_id} +quit
 sudo -u ${exfil_user} mkdir -p ${exfil_user_home}/.steam/sdk64
 sudo -u ${exfil_user} cp -f ${exfil_user_home}/.steam/steam/steamcmd/linux64/steamclient.so ${exfil_user_home}/.steam/sdk64/steamclient.so
-timeout 5s sudo -u ${exfil_user} ${exfil_user_home}/exfil-dedicated/ExfilServer.sh
+
 echo "##############################"
 echo "### Creating Config Files: "
 echo "##############################"
 
+mkdir -p "${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings"
 sudo -u ${exfil_user} echo "vi ${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings/DedicatedSettings.JSON" > ${exfil_user_home}/edit_server_settings_config && chmod +x ${exfil_user_home}/edit_server_settings_config
 sudo -u ${exfil_user} echo "vi ${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings/ServerSettings.JSON" > ${exfil_user_home}/edit_admin_settings_config && chmod +x ${exfil_user_home}/edit_admin_settings_config
 sudo -u ${exfil_user} echo "/usr/games/steamcmd +force_install_dir ${exfil_user_home}/exfil-dedicated +login ${steam_user_name} '${steam_user_password}' +app_update ${steam_app_id} +quit && ${exfil_user_home}/exfil-dedicated/ExfilServer.sh -port=${server_port} -QueryPort=${query_port}"  > ${exfil_user_home}/start_exfil_service && chmod +x ${exfil_user_home}/start_exfil_service
@@ -173,12 +199,18 @@ cat <<EOF > ${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings/Server
 }
 EOF
 
-cat <<EOF > ${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings/DedicatedSettings.JSON
+# settings here will be overriden later
+DEDICATED_SETTINGS_FILE=${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings/DedicatedSettings.JSON
+cat <<EOF > $DEDICATED_SETTINGS_FILE
 {
-    "ServerName": "${server_name}",
-    "MaxPlayerCount": "${server_max_players}"
+    "ServerName": "New Server",
+    "MaxPlayerCount": "32"
 }
 EOF
+
+# set the properties using jq to avoid escape problems
+fn_set_json_config_value '.ServerName' "${server_name}" "${DEDICATED_SETTINGS_FILE}"
+fn_set_json_config_value '.MaxPlayerCount' "${server_max_players}" "${DEDICATED_SETTINGS_FILE}"
 
 
 echo "###Building Serice Start Script: "
@@ -210,13 +242,13 @@ echo "### ${exfil_user_home}/edit_admin_settings_config   "
 echo "######################################################"
 echo "############################################"
 echo "### Start Server:                        "
-echo "### systemctl start exfil                "
+echo "### systemctl start ${exfil_service_name}"
 echo "### Check Status:                        "
-echo "### systemctl status exfil               "
+echo "### systemctl status ${exfil_service_name}"
 echo "### enable start on boot                 "
-echo "### systemctl enable exfil               "
+echo "### systemctl enable ${exfil_service_name}"
 echo "### view logs:                           "
-echo "### journalctl -u exfil.service -b -e -f "
+echo "### journalctl -u ${exfil_service_name}.service -b -e -f "
 echo "### stop server:                         "
-echo "### systemctl stop exfil                 "
+echo "### systemctl stop ${exfil_service_name} "
 echo "############################################"
