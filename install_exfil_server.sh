@@ -130,6 +130,7 @@ fn_get_required_user_input "Server Name (shown in server browser)?:" server_name
 fn_get_user_input "Max. players on server (default: 32)?:" server_max_players 32
 fn_get_user_input "Server Port (default: 27015)?:" server_port 27015
 fn_get_user_input "Server Query Port (default: 7777)?:" query_port 7777
+fn_get_user_input "Additional Server Admins (optional, format: SteamID1=Name1;SteamID2=Name;SteamID3=Name3)?:" server_admin_list
 fn_get_user_input "Exfil Service Name (default: exfil)?:" exfil_service_name exfil
 
 if fn_is_installed steamcmd;
@@ -186,18 +187,31 @@ sudo -u ${exfil_user} echo "/usr/games/steamcmd +force_install_dir ${exfil_user_
 chown -R ${exfil_user}:${exfil_user} /home/${exfil_user}
 
 
-cat <<EOF > ${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings/ServerSettings.JSON
+SERVER_SETTINGS_FILE=${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings/ServerSettings.JSON
+cat <<EOF > $SERVER_SETTINGS_FILE
 {
-    "admin": {
-        "76561197972138706": "Misultin",
-        "76561198013561063": "Irontaxi",
-        "76561198001845029": "Loki",
-    },
+  "admin": {
+      "76561197972138706": "Misultin",
+      "76561198013561063": "Irontaxi",
+      "76561198001845029": "Loki"
+  },
   "AutoStartTimer": 0,
   "MinAutoStartPlayers": "2",
   "AddAutoStartTimeOnPlayerJoin": 20
 }
 EOF
+
+if [ -n "${server_admin_list}" ]; then
+  IFS=';' read -ra server_admins <<< "${server_admin_list}"
+
+  for server_admin in "${server_admins[@]}"
+  do
+      admin_steam_id="${server_admin%=*}"
+      admin_name="${server_admin#*=}"
+      printf "\t> Adding '${admin_name}' with steam id '${admin_steam_id}' to admins\n"
+      fn_set_json_config_value ".admin.\"${admin_steam_id}\"" "${admin_name}" "${SERVER_SETTINGS_FILE}"
+  done
+fi
 
 # settings here will be overriden later
 DEDICATED_SETTINGS_FILE=${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings/DedicatedSettings.JSON
@@ -213,7 +227,7 @@ fn_set_json_config_value '.ServerName' "${server_name}" "${DEDICATED_SETTINGS_FI
 fn_set_json_config_value '.MaxPlayerCount' "${server_max_players}" "${DEDICATED_SETTINGS_FILE}"
 
 
-echo "###Building Serice Start Script: "
+echo "###Building Service Start Script: "
 cat <<EOF > /etc/systemd/system/${exfil_service_name}.service
         [Unit]
         Description=Exfil dedicated server
