@@ -14,29 +14,63 @@ steam_app_id=3093190
 #################
 ###End Configs###
 #################
+
+####################
+# Start: Functions #
+####################
+
+fn_user_exists() {
+  if id "$1" >/dev/null 2>&1;
+  then
+    true
+  else
+    false
+  fi
+}
+
+fn_quit_if_not_admin() {
+  if [ $(id -u) -ne 0 ]
+  then
+    echo "Please run this script as root or using sudo!"
+    exit -1
+  fi
+}
+
+##################
+# End: Functions #
+##################
+
 echo "#########################################"
 echo "### Installing Exfil Dedicated Server "
 echo "#########################################"
 
-if [ $(id -u) -ne 0 ]
-then
-  echo "Please run this script as root or using sudo!"
-  exit
-fi
+fn_quit_if_not_admin
 
 echo "##############################"
 echo "### Collecting Information "
 echo "##############################"
+
+echo -n "Username for Server (username to install server under)? "
+read exfil_user
+exfil_user_home=/home/${exfil_user}
+
+if fn_user_exists ${exfil_user};
+then
+  echo "### User ${exfil_user} exists, continuing"
+else
+  echo "### User ${exfil_user} does exist, going to create it"
+  echo "### Creating User " ${exfil_user}
+  sudo useradd -m ${exfil_user}
+
+  echo "### Setting Password for " ${exfil_user}
+  passwd ${exfil_user}
+fi
 
 echo -n "Steam Username? "
 read steam_user_name
 
 echo -n "Steam User Password? "
 read steam_user_password
-
-echo -n "Username for Server(username to install server under)? "
-read exfil_user
-exfil_user_home=/home/${exfil_user}
 
 echo -n "Server Name(name your server shows as in host list)? "
 read server_name
@@ -49,12 +83,6 @@ read query_port
 
 echo -n "Exfil Service Name (default exfil)? "
 read exfil_service_name
-
-echo "###Creating User " ${exfil_user}
-sudo useradd -m ${exfil_user}
-
-echo "###Setting Password for " ${exfil_user}
-passwd ${exfil_user}
 
 echo "#########################################"
 echo "### Downloading & Installing steamcmd "
