@@ -202,7 +202,7 @@ exfil_user_home=$(fn_get_home_dir ${exfil_user})
 cd ${exfil_user_home}
 sudo -u ${exfil_user} /usr/games/steamcmd +force_install_dir ${exfil_user_home}/exfil-dedicated +login ${steam_user_name} ${steam_user_password} +app_update ${steam_app_id} +quit
 sudo -u ${exfil_user} mkdir -p ${exfil_user_home}/.steam/sdk64
-sudo -u ${exfil_user} cp -f ${exfil_user_home}/.steam/steam/steamcmd/linux64/steamclient.so ${exfil_user_home}/.steam/sdk64/steamclient.so
+sudo -u ${exfil_user} ln -s  ${exfil_user_home}/.local/share/Steam/steamcmd/linux64/steamclient.so ${exfil_user_home}/.steam/sdk64/steamclient.so
 
 echo "##############################"
 echo "### Creating Config Files: "
