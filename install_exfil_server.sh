@@ -262,10 +262,12 @@ echo "### ${exfil_user_home}/edit_admin_settings_config   "
 echo "######################################################"
 
 
-if [ -n "${exfil_service_name}" ] || fn_ask "Do you want to setup a service?  ([y]es, [n]o)?:";
+if [ "${exfil_service_skip}" !=  "1" ] && [ "${exfil_service_skip}" != "true" ];
 then
-  [ -n "${exfil_service_name}" ] || fn_get_user_input "Exfil Service Name (default: exfil)?:" exfil_service_name exfil
-  echo "###Building Service Start Script: "
+  if [ -n "${exfil_service_name}" ] || fn_ask "Do you want to setup a service?  ([y]es, [n]o)?:";
+  then
+    [ -n "${exfil_service_name}" ] || fn_get_user_input "Exfil Service Name (default: exfil)?:" exfil_service_name exfil
+    echo "###Building Service Start Script: "
 cat <<EOF > /etc/systemd/system/${exfil_service_name}.service
         [Unit]
         Description=Exfil dedicated server
@@ -284,18 +286,24 @@ cat <<EOF > /etc/systemd/system/${exfil_service_name}.service
 
 EOF
 
-  echo "############################################"
-  echo "### Start Server:                        "
-  echo "### systemctl start ${exfil_service_name}"
-  echo "### Check Status:                        "
-  echo "### systemctl status ${exfil_service_name}"
-  echo "### enable start on boot                 "
-  echo "### systemctl enable ${exfil_service_name}"
-  echo "### view logs:                           "
-  echo "### journalctl -u ${exfil_service_name}.service -b -e -f "
-  echo "### stop server:                         "
-  echo "### systemctl stop ${exfil_service_name} "
-  echo "############################################"
+    echo "############################################"
+    echo "### Start Server:                        "
+    echo "### systemctl start ${exfil_service_name}"
+    echo "### Check Status:                        "
+    echo "### systemctl status ${exfil_service_name}"
+    echo "### enable start on boot                 "
+    echo "### systemctl enable ${exfil_service_name}"
+    echo "### view logs:                           "
+    echo "### journalctl -u ${exfil_service_name}.service -b -e -f "
+    echo "### stop server:                         "
+    echo "### systemctl stop ${exfil_service_name} "
+    echo "############################################"
+  else
+    echo "############################################"
+    echo "### Start Server:                           "
+    echo "### ./${exfil_user_home}/start_exfil_service"
+    echo "############################################"
+  fi
 else
   echo "############################################"
   echo "### Start Server:                           "
