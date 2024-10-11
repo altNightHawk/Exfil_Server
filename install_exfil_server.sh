@@ -288,7 +288,7 @@ EOF
 
   if [ "${exfil_cron_skip}" !=  "1" ] && [ "${exfil_cron_skip}" != "true" ];
   then
-    if [ -n "${exfil_cron_name}" ] || fn_ask "Do you want to a cron job to update the server regularly?  ([y]es, [n]o)?:";
+    if [ -n "${exfil_cron_name}" ] || fn_ask "Do you want to create a cron job to update the server regularly?  ([y]es, [n]o)?:";
     then
       [ -n "${exfil_cron_name}" ] || fn_get_user_input "Exfil Cron Name (default: exfil_service_check)?:" exfil_cron_name exfil_service_check
       echo "###Building Update Cron: "
