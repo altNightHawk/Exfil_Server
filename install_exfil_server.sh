@@ -24,7 +24,7 @@ fn_user_exists() {
   then
     true
   else
-    falsels
+    false
   fi
 }
 
@@ -201,9 +201,12 @@ echo "#####################################################################"
 exfil_user_home=$(fn_get_home_dir ${exfil_user})
 cd ${exfil_user_home}
 sudo -u ${exfil_user} /usr/games/steamcmd +force_install_dir ${exfil_user_home}/exfil-dedicated +login ${steam_user_name} ${steam_user_password} +app_update ${steam_app_id} +quit
-sudo -u ${exfil_user} mkdir -p ${exfil_user_home}/.steam/sdk64
-sudo -u ${exfil_user} ln -s  ${exfil_user_home}/.local/share/Steam/steamcmd/linux64/steamclient.so ${exfil_user_home}/.steam/sdk64/steamclient.so
-
+if [ -e ${exfil_user_home}/.steam/sdk64/steamclient.so ]; then
+  echo " steamclient.so symlink already exists"
+else
+  sudo -u ${exfil_user} mkdir -p ${exfil_user_home}/.steam/sdk64
+  sudo -u ${exfil_user} ln -s  ${exfil_user_home}/.local/share/Steam/steamcmd/linux64/steamclient.so ${exfil_user_home}/.steam/sdk64/steamclient.so
+fi
 echo "##############################"
 echo "### Creating Config Files: "
 echo "##############################"
@@ -332,7 +335,7 @@ EOF
       echo "### Not installing Cron"
     fi
   else
-    echo "### Not installing Cronn"
+    echo "### Not installing Cron"
   fi
 
     echo "############################################"
@@ -343,7 +346,6 @@ EOF
     echo "### enable start on boot                 "
     echo "### systemctl enable ${exfil_service_name}"
     echo "### view logs:                           "
-    echo "###                                      "
     echo "### journalctl -u ${exfil_service_name}.service -b -e -f "
     echo "### stop server:                         "
     echo "### systemctl stop ${exfil_service_name} "
