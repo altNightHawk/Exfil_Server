@@ -295,7 +295,7 @@ cat <<EOF > /etc/cron.hourly/exfil_${exfil_user}_version_check
 ###Configs####
 ##############
 steam_user_name=${steam_user_name}
-steam_user_password=${steam_user_password}
+steam_user_password='${steam_user_password}'
 steam_app_id=${steam_app_id}
 exfil_user=${exfil_user}
 exfil_service_name=${exfil_service_name}.service
@@ -318,6 +318,8 @@ else
 fi
 
 EOF
+
+chmod +x /etc/cron.hourly/exfil_${exfil_user}_version_check
 
 echo "########################"
 echo "### Cron installed at: "
