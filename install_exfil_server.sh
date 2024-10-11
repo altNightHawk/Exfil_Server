@@ -263,10 +263,6 @@ echo "######################################################"
 
 
 if [ -n "${exfil_service_name}" ] || fn_ask "Do you want to setup a service?  ([y]es, [n]o)?:";
-echo "############################################"
-echo "### Start Server:                           "
-echo "### .${exfil_user_home}/start_exfil_service"
-echo "############################################"
 then
   [ -n "${exfil_service_name}" ] || fn_get_user_input "Exfil Service Name (default: exfil)?:" exfil_service_name exfil
   echo "###Building Service Start Script: "
@@ -299,6 +295,11 @@ EOF
   echo "### journalctl -u ${exfil_service_name}.service -b -e -f "
   echo "### stop server:                         "
   echo "### systemctl stop ${exfil_service_name} "
+  echo "############################################"
+else
+  echo "############################################"
+  echo "### Start Server:                           "
+  echo "### .${exfil_user_home}/start_exfil_service"
   echo "############################################"
 fi
 
