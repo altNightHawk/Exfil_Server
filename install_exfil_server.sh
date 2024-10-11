@@ -286,6 +286,45 @@ cat <<EOF > /etc/systemd/system/${exfil_service_name}.service
 
 EOF
 
+if [ -n "${exfil_cron}" ] || fn_ask "Do you want to a cron to update the server?  ([y]es, [n]o)?:";
+  then
+    echo "###Building Update Cron: "
+cat <<EOF > /etc/cron.hourly/exfil_${exfil_user}_version_check
+#!/bin/bash
+##############
+###Configs####
+##############
+steam_user_name=${steam_user_name}
+steam_user_password=${steam_user_password}
+steam_app_id=3093190
+exfil_user=${steam_user_password}
+exfil_service_name=${exfil_service_name}.service
+#################
+###End Configs###
+#################
+
+local_buildid=$(grep -oP  'buildid.+?"\K[0-9]+' /home/${exfil_user}/exfil-dedicated/steamapps/appmanifest_${steam_app_id}.acf)
+echo "Local Build: " $local_buildid
+
+remote_buildid=$(steamcmd +login ${steam_user_name} ${steam_user_password} +app_info_update 1 +app_info_print ${steam_app_id} +quit | grep -oPz '(?s)"branchs"\s+{\s+"public"\s+{\s+"buildid"\s+"\d+"' | grep -aoP  'buildid.+?"\K[0-9]+')
+echo "Remote Build: " $remote_buildid
+
+if [ "${remote_buildid}" = "${local_buildid}" ]; then
+  echo "Exfil (${steam_app_id}) is up to date"
+else
+  echo "Exfil (${steam_app_id}) is not up to date."
+  echo "Going to restart ExfilServer process"
+  systemctl restart ${exfil_service_name}
+fi
+
+EOF
+
+echo "########################"
+echo "### Cron installed at: "
+echo "### /etc/cron.hourly/exfil_${exfil_user}_version_check "
+echo "########################"
+fi
+
     echo "############################################"
     echo "### Start Server:                        "
     echo "### systemctl start ${exfil_service_name}"
