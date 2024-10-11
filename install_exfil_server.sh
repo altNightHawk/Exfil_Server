@@ -149,8 +149,7 @@ else
   echo "### Creating User " ${exfil_user}
   sudo useradd -m ${exfil_user}
 
-  echo "### Setting Password for " ${exfil_user}
-  passwd ${exfil_user}
+  echo "### NOTICE: Password has not been set for ${exfil_user}, please create one if your system requires it."
 fi
 
 [ -n "${steam_user_name}" ] || fn_get_required_user_input "Steam Username?:" steam_user_name "Steam Username is required. Please provide one!"
