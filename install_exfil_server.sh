@@ -213,9 +213,6 @@ sudo -u ${exfil_user} echo "vi ${exfil_user_home}/exfil-dedicated/Exfil/Saved/Se
 sudo -u ${exfil_user} echo "vi ${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings/ServerSettings.JSON" > ${exfil_user_home}/edit_admin_settings_config && chmod +x ${exfil_user_home}/edit_admin_settings_config
 sudo -u ${exfil_user} echo "/usr/games/steamcmd +force_install_dir ${exfil_user_home}/exfil-dedicated +login ${steam_user_name} '${steam_user_password}' +app_update ${steam_app_id} +quit && ${exfil_user_home}/exfil-dedicated/ExfilServer.sh -port=${server_port} -QueryPort=${query_port}"  > ${exfil_user_home}/start_exfil_service && chmod +x ${exfil_user_home}/start_exfil_service
 
-chown -R ${exfil_user}:${exfil_user} /home/${exfil_user}
-
-
 SERVER_SETTINGS_FILE=${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings/ServerSettings.JSON
 cat <<EOF > $SERVER_SETTINGS_FILE
 {
@@ -255,6 +252,8 @@ EOF
 fn_set_json_config_value '.ServerName' "${server_name}" "${DEDICATED_SETTINGS_FILE}"
 fn_set_json_config_value '.MaxPlayerCount' "${server_max_players}" "${DEDICATED_SETTINGS_FILE}"
 fn_set_json_config_value '.ServerPassword' "${server_password}" "${DEDICATED_SETTINGS_FILE}"
+
+chown -R ${exfil_user}:${exfil_user} /home/${exfil_user}
 
 echo "######################################################"
 echo "### Edit your configs:                             "
