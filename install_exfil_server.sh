@@ -286,46 +286,54 @@ cat <<EOF > /etc/systemd/system/${exfil_service_name}.service
 
 EOF
 
-if [ -n "${exfil_cron}" ] || fn_ask "Do you want to a cron to update the server?  ([y]es, [n]o)?:";
+  if [ "${exfil_cron_skip}" !=  "1" ] && [ "${exfil_cron_skip}" != "true" ];
   then
-    echo "###Building Update Cron: "
-cat <<EOF > /etc/cron.hourly/exfil_${exfil_user}_version_check
-#!/bin/bash
-##############
-###Configs####
-##############
-steam_user_name=${steam_user_name}
-steam_user_password='${steam_user_password}'
-steam_app_id=${steam_app_id}
-exfil_user=${exfil_user}
-exfil_service_name=${exfil_service_name}.service
-#################
-###End Configs###
-#################
+    if [ -n "${exfil_cron_name}" ] || fn_ask "Do you want to a cron job to update the server regularly?  ([y]es, [n]o)?:";
+    then
+      [ -n "${exfil_cron_name}" ] || fn_get_user_input "Exfil Cron Name (default: exfil_service_check)?:" exfil_cron_name exfil_service_check
+      echo "###Building Update Cron: "
+  cat <<EOF > /etc/cron.hourly/${exfil_cron_name}
+        #!/bin/bash
+        ##############
+        ###Configs####
+        ##############
+        steam_user_name=${steam_user_name}
+        steam_user_password='${steam_user_password}'
+        steam_app_id=${steam_app_id}
+        exfil_user_home=${exfil_user_home}
+        exfil_service_name=${exfil_service_name}.service
+        #################
+        ###End Configs###
+        #################
 
-local_buildid=\$(grep -oP  'buildid.+?"\K[0-9]+' /home/\${exfil_user}/exfil-dedicated/steamapps/appmanifest_\${steam_app_id}.acf)
-echo "Local Build: " \$local_buildid
+        local_buildid=\$(grep -oP  'buildid.+?"\K[0-9]+' \${exfil_user_home}/exfil-dedicated/steamapps/appmanifest_\${steam_app_id}.acf)
+        echo "Local Build: " \$local_buildid
 
-remote_buildid=\$(steamcmd +login \${steam_user_name} \${steam_user_password} +app_info_update 1 +app_info_print \${steam_app_id} +quit | grep -oPz '(?s)"branchs"\s+{\s+"public"\s+{\s+"buildid"\s+"\d+"' | grep -aoP  'buildid.+?"\K[0-9]+')
-echo "Remote Build: " \$remote_buildid
+        remote_buildid=\$(steamcmd +login \${steam_user_name} \${steam_user_password} +app_info_update 1 +app_info_print \${steam_app_id} +quit | grep -oPz '(?s)"branches"\s+{\s+"public"\s+{\s+"buildid"\s+"\d+"' | grep -aoP  'buildid.+?"\K[0-9]+')
+        echo "Remote Build: " \$remote_buildid
 
-if [ "\${remote_buildid}" = "\${local_buildid}" ]; then
-  echo "Exfil (\${steam_app_id}) is up to date"
-else
-  echo "Exfil (\${steam_app_id}) is not up to date."
-  echo "Going to restart ExfilServer process"
-  systemctl restart \${exfil_service_name}
-fi
+        if [ "\${remote_buildid}" = "\${local_buildid}" ]; then
+         echo "Exfil (\${steam_app_id}) is up to date"
+        else
+          echo "Exfil (\${steam_app_id}) is not up to date."
+          echo "Going to restart ExfilServer process"
+          systemctl restart \${exfil_service_name}
+        fi
 
 EOF
 
-chmod +x /etc/cron.hourly/exfil_${exfil_user}_version_check
+      chmod +x /etc/cron.hourly/exfil_${exfil_user}_version_check
 
-echo "########################"
-echo "### Cron installed at: "
-echo "### /etc/cron.hourly/exfil_${exfil_user}_version_check "
-echo "########################"
-fi
+      echo "########################"
+      echo "### Cron installed at: "
+      echo "### /etc/cron.hourly/exfil_${exfil_user}_version_check "
+      echo "########################"
+    else
+      echo "### Not installing Cron"
+    fi
+  else
+    echo "### Not installing Cronn"
+  fi
 
     echo "############################################"
     echo "### Start Server:                        "
@@ -335,6 +343,7 @@ fi
     echo "### enable start on boot                 "
     echo "### systemctl enable ${exfil_service_name}"
     echo "### view logs:                           "
+    echo "###                                      "
     echo "### journalctl -u ${exfil_service_name}.service -b -e -f "
     echo "### stop server:                         "
     echo "### systemctl stop ${exfil_service_name} "
