@@ -10,3 +10,5 @@ Install Exfil Server Interactive
 Install Exfil Server automatic
 edit exfil.env and set your options
 ./install_exfil_server.sh exfil.env
+
+Full Install can include service setup and an auto-update cron.
