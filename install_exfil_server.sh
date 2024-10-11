@@ -24,7 +24,7 @@ fn_user_exists() {
   then
     true
   else
-    false
+    falsels
   fi
 }
 
@@ -296,25 +296,25 @@ cat <<EOF > /etc/cron.hourly/exfil_${exfil_user}_version_check
 ##############
 steam_user_name=${steam_user_name}
 steam_user_password=${steam_user_password}
-steam_app_id=3093190
-exfil_user=${steam_user_password}
+steam_app_id=${steam_app_id}
+exfil_user=${exfil_user}
 exfil_service_name=${exfil_service_name}.service
 #################
 ###End Configs###
 #################
 
-local_buildid=$(grep -oP  'buildid.+?"\K[0-9]+' /home/${exfil_user}/exfil-dedicated/steamapps/appmanifest_${steam_app_id}.acf)
-echo "Local Build: " $local_buildid
+local_buildid=\$(grep -oP  'buildid.+?"\K[0-9]+' /home/\${exfil_user}/exfil-dedicated/steamapps/appmanifest_\${steam_app_id}.acf)
+echo "Local Build: " \$local_buildid
 
-remote_buildid=$(steamcmd +login ${steam_user_name} ${steam_user_password} +app_info_update 1 +app_info_print ${steam_app_id} +quit | grep -oPz '(?s)"branchs"\s+{\s+"public"\s+{\s+"buildid"\s+"\d+"' | grep -aoP  'buildid.+?"\K[0-9]+')
-echo "Remote Build: " $remote_buildid
+remote_buildid=\$(steamcmd +login \${steam_user_name} \${steam_user_password} +app_info_update 1 +app_info_print \${steam_app_id} +quit | grep -oPz '(?s)"branchs"\s+{\s+"public"\s+{\s+"buildid"\s+"\d+"' | grep -aoP  'buildid.+?"\K[0-9]+')
+echo "Remote Build: " \$remote_buildid
 
-if [ "${remote_buildid}" = "${local_buildid}" ]; then
-  echo "Exfil (${steam_app_id}) is up to date"
+if [ "\${remote_buildid}" = "\${local_buildid}" ]; then
+  echo "Exfil (\${steam_app_id}) is up to date"
 else
-  echo "Exfil (${steam_app_id}) is not up to date."
+  echo "Exfil (\${steam_app_id}) is not up to date."
   echo "Going to restart ExfilServer process"
-  systemctl restart ${exfil_service_name}
+  systemctl restart \${exfil_service_name}
 fi
 
 EOF
