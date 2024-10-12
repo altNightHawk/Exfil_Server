@@ -18,14 +18,14 @@
 *** for contributors-url, forks-url, etc. This is an optional, concise syntax you may use.
 *** https://www.markdownguide.org/basic-syntax/#reference-style-links
 -->
-<!--
+
 [![Contributors][contributors-shield]][contributors-url]
 [![Forks][forks-shield]][forks-url]
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 [![MIT License][license-shield]][license-url]
 [![LinkedIn][linkedin-shield]][linkedin-url]
--->
+
 
 
 <!-- PROJECT LOGO -->
@@ -113,13 +113,30 @@
 
 Working Ubunutu installation with root access
 
-### Installation
-<!---
-1. Get a free API Key at 
+### Interactive Installation
+1. Create a new steam account (recommended)
+2. Get a API Key and add it to your new steam account
+3. wget  https://github.com/altNightHawk/Exfil_Server/archive/refs/tags/v1.0.0.tar.gz
+4. tar -xvf v1.0.0.tar.gz
+5. cd Exfil_Server-1.0.0
+6. chmod +x install_exfil_server.sh
+7. ./install_exfil_server.sh
+8. answer the prompts
+9. start your server
 
+### Automatic Installation
+1. Create a new steam account (recommended)
+2. Get a API Key and add it to your new steam account
+3. wget  https://github.com/altNightHawk/Exfil_Server/archive/refs/tags/v1.0.0.tar.gz
+4. tar -xvf v1.0.0.tar.gz
+5. cd Exfil_Server-1.0.0
+6. chmod +x install_exfil_server.sh
+7. edit exfil.env
+8. ./install_exfil_server.sh
+9. start your server
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
---->
+
 
 
 <!-- USAGE EXAMPLES -->
@@ -146,10 +163,9 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 <!-- ROADMAP -->
 ## Roadmap
 
-- [ ] Feature 1
-- [ ] Feature 2
-- [ ] Feature 3
-    - [ ] Nested Feature
+- [ ] Adding community.JSON
+- [ ] Adding all new server features as the team deploys them
+
 
 See the [open issues](https://github.com/altNightHawk/Exfil_Server/issues) for a full list of proposed features (and known issues).
 
@@ -205,11 +221,11 @@ Project Link: [https://github.com/altNightHawk/Exfil_Server](https://github.com/
 
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
-
+<!---
 * []()
 * []()
 * []()
-
+--->
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
