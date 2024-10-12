@@ -5,7 +5,7 @@
 *** that would make this better, please fork the repo and create a pull request
 *** or simply open an issue with the tag "enhancement".
 *** Don't forget to give the project a star!
-*** Thanks again! Now go create something AMAZING! 
+*** Thanks again! Now go create something AMAZING!
 -->
 
 
@@ -38,7 +38,7 @@
 <h3 align="center">Exfil Server</h3>
 
   <p align="center">
-    Dedicated Exfil server for Ubunutu
+    Dedicated Exfil server for Ubuntu
     <br />
     <a href="https://github.com/altNightHawk/Exfil_Server"><strong>Explore the docs »</strong></a>
     <br />
@@ -142,12 +142,12 @@ Working Ubunutu installation with root access
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Install Exfil Server Interactive 
+Install Exfil Server Interactive
 
 ./install_exfil_server.sh
 
 
-Install Exfil Server automatic edit exfil.env and set your options 
+Install Exfil Server automatic edit exfil.env and set your options
 
 ./install_exfil_server.sh exfil.env
 
@@ -164,8 +164,8 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 ## Roadmap
 
 - [ ] Adding community.JSON
+- [ ] Supporting dev branches
 - [ ] Adding all new server features as the team deploys them
-
 
 See the [open issues](https://github.com/altNightHawk/Exfil_Server/issues) for a full list of proposed features (and known issues).
 
@@ -260,4 +260,4 @@ Project Link: [https://github.com/altNightHawk/Exfil_Server](https://github.com/
 [Bootstrap.com]: https://img.shields.io/badge/Bootstrap-563D7C?style=for-the-badge&logo=bootstrap&logoColor=white
 [Bootstrap-url]: https://getbootstrap.com
 [JQuery.com]: https://img.shields.io/badge/jQuery-0769AD?style=for-the-badge&logo=jquery&logoColor=white
-[JQuery-url]: https://jquery.com 
+[JQuery-url]: https://jquery.com
