@@ -121,15 +121,17 @@ fn_startup() {
 
   fn_quit_if_not_admin
 
-  if [ -n "${1}" ]; then
-    if [ ! -f ${1} ]; then
-      >&2 echo ".env file '${1}' was not found."
-      exit -1
-    fi
-
-    echo "Including variables from: ${1}"
-    . $1
+  if [ -z "${1}" ]; then
+    return
   fi
+
+  if [ ! -f ${1} ]; then
+    >&2 echo ".env file '${1}' was not found."
+    exit -1
+  fi
+
+  echo "Including variables from: ${1}"
+  . $1
 }
 
 fn_ask_collect_info() {
@@ -164,36 +166,38 @@ fn_install_steam() {
   if fn_is_installed steamcmd;
   then
     echo "### SteamCmd is already installed"
-  else
-    echo "#########################################"
-    echo "### Downloading & Installing steamcmd "
-    echo "#########################################"
-
-    sudo add-apt-repository multiverse; sudo dpkg --add-architecture i386; sudo apt update
-    sudo apt install steamcmd
-
-    echo "##########################"
-    echo "### steamcmd installed "
-    echo "##########################"
+    return
   fi
+
+  echo "#########################################"
+  echo "### Downloading & Installing steamcmd "
+  echo "#########################################"
+
+  sudo add-apt-repository multiverse; sudo dpkg --add-architecture i386; sudo apt update
+  sudo apt install steamcmd
+
+  echo "##########################"
+  echo "### steamcmd installed "
+  echo "##########################"
 }
 
 fn_install_jq() {
   if fn_is_installed jq;
   then
     echo "### jq is already installed"
-  else
-    echo "#########################################"
-    echo "### Downloading & Installing jq "
-    echo "#########################################"
-
-    sudo apt update
-    sudo apt-get install jq
-
-    echo "##########################"
-    echo "### jq installed "
-    echo "##########################"
+    return
   fi
+
+  echo "#########################################"
+  echo "### Downloading & Installing jq "
+  echo "#########################################"
+
+  sudo apt update
+  sudo apt-get install jq
+
+  echo "##########################"
+  echo "### jq installed "
+  echo "##########################"
 }
 
 fn_install_exfil() {
@@ -204,12 +208,14 @@ fn_install_exfil() {
   exfil_user_home=$(fn_get_home_dir ${exfil_user})
   cd ${exfil_user_home}
   sudo -u ${exfil_user} /usr/games/steamcmd +force_install_dir ${exfil_user_home}/exfil-dedicated +login ${steam_user_name} ${steam_user_password} +app_update ${steam_app_id} +quit
+
   if [ -e ${exfil_user_home}/.steam/sdk64/steamclient.so ]; then
     echo " steamclient.so symlink already exists"
-  else
-    sudo -u ${exfil_user} mkdir -p ${exfil_user_home}/.steam/sdk64
-    sudo -u ${exfil_user} ln -s  ${exfil_user_home}/.local/share/Steam/steamcmd/linux64/steamclient.so ${exfil_user_home}/.steam/sdk64/steamclient.so
+    return
   fi
+
+  sudo -u ${exfil_user} mkdir -p ${exfil_user_home}/.steam/sdk64
+  sudo -u ${exfil_user} ln -s  ${exfil_user_home}/.local/share/Steam/steamcmd/linux64/steamclient.so ${exfil_user_home}/.steam/sdk64/steamclient.so
 }
 
 fn_configure_exfil() {
@@ -326,7 +332,7 @@ EOF
 fn_print_server_start_instructions() {
   echo "############################################"
   echo "### Start Server:                           "
-  echo "### ./${exfil_user_home}/start_exfil_service"
+  echo "### ${exfil_user_home}/start_exfil_service"
   echo "############################################"
 }
 
@@ -356,34 +362,37 @@ fn_install_cronjob() {
 }
 
 fn_install_service() {
-  if [ "${exfil_service_skip}" !=  "1" ] && [ "${exfil_service_skip}" != "true" ];
+  # skipping exfil service installation was configured
+  if [ "${exfil_service_skip}" =  "1" ] || [ "${exfil_service_skip}" = "true" ];
   then
-    if [ -n "${exfil_service_name}" ] || fn_ask "Do you want to setup a service?  ([y]es, [n]o)?:";
+    fn_print_server_start_instructions
+    return
+  fi
+
+  if [ -z "${exfil_service_name}" ] && ! fn_ask "Do you want to setup a service?  ([y]es, [n]o)?:";
+  then
+    fn_print_server_start_instructions
+    return
+  fi
+
+  [ -n "${exfil_service_name}" ] || fn_get_user_input "Exfil Service Name (default: exfil)?:" exfil_service_name exfil
+  echo "### Building Service Start Script: "
+  fn_write_service_file
+
+  if [ "${exfil_cron_skip}" !=  "1" ] && [ "${exfil_cron_skip}" != "true" ];
+  then
+    if [ -n "${exfil_cron_name}" ] || fn_ask "Do you want to create a cron job to update the server regularly?  ([y]es, [n]o)?:";
     then
-      [ -n "${exfil_service_name}" ] || fn_get_user_input "Exfil Service Name (default: exfil)?:" exfil_service_name exfil
-      echo "###Building Service Start Script: "
-      fn_write_service_file
-
-      if [ "${exfil_cron_skip}" !=  "1" ] && [ "${exfil_cron_skip}" != "true" ];
-      then
-        if [ -n "${exfil_cron_name}" ] || fn_ask "Do you want to create a cron job to update the server regularly?  ([y]es, [n]o)?:";
-        then
-          [ -n "${exfil_cron_name}" ] || fn_get_user_input "Exfil Cron Name (default: exfil_service_check)?:" exfil_cron_name exfil_service_check
-          fn_install_cronjob
-        else
-          echo "### Not installing Cron"
-        fi
-      else
-        echo "### Not installing Cron"
-      fi
-
-      fn_print_service_instructions
+      [ -n "${exfil_cron_name}" ] || fn_get_user_input "Exfil Cron Name (default: exfil_service_check)?:" exfil_cron_name exfil_service_check
+      fn_install_cronjob
     else
-      fn_print_server_start_instructions
+      echo "### Not installing Cron"
     fi
   else
-    fn_print_server_start_instructions
+    echo "### Not installing Cron"
   fi
+
+  fn_print_service_instructions
 }
 
 fn_print_complete() {
