@@ -326,7 +326,7 @@ fn_write_cronjob_file() {
     fi
 EOF
 
-  chmod +x /etc/cron.hourly/exfil_${exfil_user}_version_check
+  chmod +x /etc/cron.hourly/${exfil_cron_name}
 }
 
 fn_print_server_start_instructions() {
