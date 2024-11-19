@@ -129,9 +129,9 @@ Working Ubunutu installation with root access
 3. wget  https://github.com/altNightHawk/Exfil_Server/archive/refs/tags/Exfil_Sever-v1.0.0.tar.gz
 4. tar -xvf Exfil_Server-v1.0.0.tar.gz
 5. cd Exfil_Server-1.0.0
-6. chmod +x install_exfil_server.sh
+6. chmod +x install_exfil_server.sh 
 7. edit exfil.env
-8. ./install_exfil_server.sh
+8. ./install_exfil_server.sh exfil.env
 9. start your server
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
