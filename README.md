@@ -108,7 +108,6 @@
 ## Getting Started
 
 
-
 ### Prerequisites
 
 Working Ubunutu installation with root access
@@ -116,8 +115,8 @@ Working Ubunutu installation with root access
 ### Interactive Installation
 1. Create a new steam account (recommended)
 2. Get a API Key and add it to your new steam account
-3. wget  https://github.com/altNightHawk/Exfil_Server/archive/refs/tags/v1.0.0.tar.gz
-4. tar -xvf v1.0.0.tar.gz
+3. wget  https://github.com/altNightHawk/Exfil_Server/archive/refs/tags/Exfil_Server-v1.0.0.tar.gz
+4. tar -xvf Exfil_Server.v1.0.0.tar.gz
 5. cd Exfil_Server-1.0.0
 6. chmod +x install_exfil_server.sh
 7. ./install_exfil_server.sh
@@ -127,8 +126,8 @@ Working Ubunutu installation with root access
 ### Automatic Installation
 1. Create a new steam account (recommended)
 2. Get a API Key and add it to your new steam account
-3. wget  https://github.com/altNightHawk/Exfil_Server/archive/refs/tags/v1.0.0.tar.gz
-4. tar -xvf v1.0.0.tar.gz
+3. wget  https://github.com/altNightHawk/Exfil_Server/archive/refs/tags/Exfil_Sever-v1.0.0.tar.gz
+4. tar -xvf Exfil_Server-v1.0.0.tar.gz
 5. cd Exfil_Server-1.0.0
 6. chmod +x install_exfil_server.sh
 7. edit exfil.env
@@ -154,7 +153,6 @@ Install Exfil Server automatic edit exfil.env and set your options
 
 Full Install can include service setup and an auto-update cron.
 
-_For more examples, please refer to the [Documentation](https://example.com)_
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
