@@ -223,22 +223,32 @@ fn_configure_exfil() {
   echo "### Creating Config Files: "
   echo "##############################"
 
+  SERVER_SETTINGS_FILE=${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings/ServerSettings.JSON
+  DEDICATED_SETTINGS_FILE=${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings/Dedicated_Settings.JSON
+  ADMIN_SETTINGS_FILE=${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings/AdminSettings.JSON
+
   mkdir -p "${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings"
-  sudo -u ${exfil_user} echo "vi ${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings/DedicatedSettings.JSON" > ${exfil_user_home}/edit_server_settings_config && chmod +x ${exfil_user_home}/edit_server_settings_config
-  sudo -u ${exfil_user} echo "vi ${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings/ServerSettings.JSON" > ${exfil_user_home}/edit_admin_settings_config && chmod +x ${exfil_user_home}/edit_admin_settings_config
+  sudo -u ${exfil_user} echo "vi ${SERVER_SETTINGS_FILE}" > ${exfil_user_home}/edit_server_config && chmod +x ${exfil_user_home}/edit_server_config
+  sudo -u ${exfil_user} echo "vi ${DEDICATED_SETTINGS_FILE}" > ${exfil_user_home}/edit_dedicated_config && chmod +x ${exfil_user_home}/edit_dedicated_config
+  sudo -u ${exfil_user} echo "vi ${ADMIN_SETTINGS_FILE}" > ${exfil_user_home}/edit_admin_config && chmod +x ${exfil_user_home}/edit_admin_config
   sudo -u ${exfil_user} echo "/usr/games/steamcmd +force_install_dir ${exfil_user_home}/exfil-dedicated +login ${steam_user_name} '${steam_user_password}' +app_update ${steam_app_id} +quit && ${exfil_user_home}/exfil-dedicated/ExfilServer.sh -port=${server_port} -QueryPort=${query_port}"  > ${exfil_user_home}/start_exfil_service && chmod +x ${exfil_user_home}/start_exfil_service
 
-  SERVER_SETTINGS_FILE=${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings/ServerSettings.JSON
 cat <<EOF > $SERVER_SETTINGS_FILE
+{
+  "AutoStartTimer": 0,
+  "MinAutoStartPlayers": "2",
+  "AddAutoStartTimeOnPlayerJoin": 20
+}
+EOF
+
+cat <<EOF > $ADMIN_SETTINGS_FILE
 {
   "admin": {
       "76561197972138706": "Misultin",
       "76561198013561063": "Irontaxi",
       "76561198001845029": "Loki"
   },
-  "AutoStartTimer": 0,
-  "MinAutoStartPlayers": "2",
-  "AddAutoStartTimeOnPlayerJoin": 20
+  "BanList": []
 }
 EOF
 
@@ -250,16 +260,17 @@ EOF
         admin_steam_id="${server_admin%=*}"
         admin_name="${server_admin#*=}"
         printf "\t> Adding '${admin_name}' with steam id '${admin_steam_id}' to admins\n"
-        fn_set_json_config_value ".admin.\"${admin_steam_id}\"" "${admin_name}" "${SERVER_SETTINGS_FILE}"
+        fn_set_json_config_value ".admin.\"${admin_steam_id}\"" "${admin_name}" "${ADMIN_SETTINGS_FILE}"
     done
   fi
 
+
   # settings here will be overriden later
-  DEDICATED_SETTINGS_FILE=${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings/DedicatedSettings.JSON
 cat <<EOF > $DEDICATED_SETTINGS_FILE
 {
+    "MaxPlayerCount": 32,
     "ServerName": "New Server",
-    "MaxPlayerCount": "32"
+    "ServerPassword": ""
 }
 EOF
 
@@ -271,9 +282,10 @@ EOF
   chown -R ${exfil_user}:${exfil_user} /home/${exfil_user}
 
   echo "######################################################"
-  echo "### Edit your configs:                             "
-  echo "### ${exfil_user_home}/edit_server_settings_config "
-  echo "### ${exfil_user_home}/edit_admin_settings_config   "
+  echo "### Edit your configs:                                "
+  echo "### ${exfil_user_home}/edit_server_config             "
+  echo "### ${exfil_user_home}/edit_dedicated_config          "
+  echo "### ${exfil_user_home}/edit_admin_config              "
   echo "######################################################"
 }
 
