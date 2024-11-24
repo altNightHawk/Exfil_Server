@@ -87,15 +87,6 @@ fn_get_home_dir() {
   getent passwd $1 | cut -d: -f6
 }
 
-function fn_set_json_config_value {
-  local key=$1
-  local value=$2
-  local config=$3
-
-  local jq_args=('--arg' 'value' "${value}" "${key} = \$value" "${config}" )
-  echo $(jq "${jq_args[@]}") > $config
-}
-
 function fn_set_admin_json_config_value {
   local key=$1
   local value=$2
