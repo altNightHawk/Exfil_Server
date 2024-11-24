@@ -87,14 +87,12 @@ fn_get_home_dir() {
   getent passwd $1 | cut -d: -f6
 }
 
-function fn_set_admin_json_config_value {
+function fn_set_json_config_value {
   local key=$1
   local value=$2
-  local value2=$3
-  local value3=$4
-  local config=$5
-  
-  local jq_args=('--arg' 'value' "${value}" 'value2' "${value2}" "${key} = \$value" "${config}" )
+  local config=$3
+
+  local jq_args=('--arg' 'value' "${value}" "${key} = \$value" "${config}" )
   echo $(jq "${jq_args[@]}") > $config
 }
 
@@ -104,14 +102,11 @@ function fn_set_admin_json_config_value {
   local value2=$2
   local value3=$3
   local value4=$4
-  local value5=$5
-  local value6=$6
-  local value7=$7
-  local config=$8
+  local config=$5
 
-   local jq_args=('--arg' 'value1' "${value1}" 'value2' "${value2}" 'value3' "${value3}" 'value4' "${value4}" 'value5' "${value5}" 'value6' "${value6}" "${key} = \$value1" "${config}" )
+   local jq_args=('--arg' 'value1' "${value1}" 'value2' "${value2}" 'value3' "${value3}" 'value4' "${value4}" "${key} = \$value1" "${config}" )
 
-   echo $(jq "${key} += [{ ${value2} ${value3}, ${value4} ${value5}, ${value6} ${value7}}]" $config) > $config
+   echo $(jq "${key} += [{ "steamId": ${value2}, "name": ${value3}, "adminLevel": ${value4}}]" $config) > $config
 }
 
 fn_ask() {
@@ -290,7 +285,7 @@ EOF
         admin_steam_id="${server_admin%=*}"
         admin_name="${server_admin#*=}"
         printf "\t> Adding '${admin_name}' with steam id '${admin_steam_id}' to admins\n"
-        fn_set_admin_json_config_value '.AdminList' "\"steamId\"": "\"${admin_steam_id}\"" "\"name\"": "\"${admin_name}\"" "\"adminLevel\"": "\"Admin\"" "${ADMIN_SETTINGS_FILE}"
+        fn_set_admin_json_config_value '.AdminList' "\"${admin_steam_id}\"" "\"${admin_name}\"" "\"Admin\"" "${ADMIN_SETTINGS_FILE}"
 
      done
   fi
