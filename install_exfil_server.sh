@@ -62,16 +62,6 @@ fn_get_user_input() {
     export "${2}=${l_user_input}"
 }
 
-###fn_get_file_content {
-###  if [[ -f $1 ]]; then
-###    local content=$(<"$1")
-###  else
-###    local content=""
-###  fi
-###
-###  echo "${content}"
-###}
-
 fn_get_required_user_input() {
     # $1 = prompt
     # $2 = variable name to set
