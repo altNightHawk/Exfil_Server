@@ -62,6 +62,16 @@ fn_get_user_input() {
     export "${2}=${l_user_input}"
 }
 
+###fn_get_file_content {
+###  if [[ -f $1 ]]; then
+###    local content=$(<"$1")
+###  else
+###    local content=""
+###  fi
+###
+###  echo "${content}"
+###}
+
 fn_get_required_user_input() {
     # $1 = prompt
     # $2 = variable name to set
@@ -96,17 +106,22 @@ function fn_set_json_config_value {
   echo $(jq "${jq_args[@]}") > $config
 }
 
-function fn_set_admin_json_config_value {
-  local key=$1
-  local value1=$1
-  local value2=$2
-  local value3=$3
-  local value4=$4
-  local config=$5
+function fn_remove_role_from_json_config {
+  local steamid=$1
+  local config=$2
 
-   local jq_args=('--arg' 'value1' "${value1}" 'value2' "${value2}" 'value3' "${value3}" 'value4' "${value4}" "${key} = \$value1" "${config}" )
+  local jq_args=('--arg' 'steamid' "${steamid}" "del(.AdminList[] | select(.steamId==\$steamid))" "${config}"  )
+  echo $(jq "${jq_args[@]}") > $config
+}
 
-   echo $(jq "${key} += [{ "steamId": ${value2}, "name": ${value3}, "adminLevel": ${value4}}]" $config) > $config
+function fn_add_role_to_json_config {
+  local steamid=$1
+  local name=$2
+  local role=$3
+  local config=$4
+
+  local jq_args=('--arg' 'steamid' "${steamid}" '--arg' 'name' "${name}" '--arg' 'role' "${role}" ".AdminList += [{ steamId: \$steamid, name: \$name, adminLevel: \$role }] " "${config}"  )
+  echo $(jq "${jq_args[@]}") > $config
 }
 
 fn_ask() {
@@ -231,32 +246,10 @@ fn_install_exfil() {
   sudo -u ${exfil_user} ln -s  ${exfil_user_home}/.local/share/Steam/steamcmd/linux64/steamclient.so ${exfil_user_home}/.steam/sdk64/steamclient.so
 }
 
-fn_configure_exfil() {
-  echo "##############################"
-  echo "### Creating Config Files: "
-  echo "##############################"
-
-  SERVER_SETTINGS_FILE=${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings/ServerSettings.JSON
-  DEDICATED_SETTINGS_FILE=${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings/Dedicated_Settings.JSON
-  ADMIN_SETTINGS_FILE=${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings/AdminSettings.JSON
-
-  mkdir -p "${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings"
-  sudo -u ${exfil_user} echo "vi ${SERVER_SETTINGS_FILE}" > ${exfil_user_home}/edit_server_config && chmod +x ${exfil_user_home}/edit_server_config
-  sudo -u ${exfil_user} echo "vi ${DEDICATED_SETTINGS_FILE}" > ${exfil_user_home}/edit_dedicated_config && chmod +x ${exfil_user_home}/edit_dedicated_config
-  sudo -u ${exfil_user} echo "vi ${ADMIN_SETTINGS_FILE}" > ${exfil_user_home}/edit_admin_config && chmod +x ${exfil_user_home}/edit_admin_config
-  sudo -u ${exfil_user} echo "/usr/games/steamcmd +force_install_dir ${exfil_user_home}/exfil-dedicated +login ${steam_user_name} '${steam_user_password}' +app_update ${steam_app_id} +quit && ${exfil_user_home}/exfil-dedicated/ExfilServer.sh -port=${server_port} -QueryPort=${query_port}"  > ${exfil_user_home}/start_exfil_service && chmod +x ${exfil_user_home}/start_exfil_service
-
-cat <<EOF > $SERVER_SETTINGS_FILE
-{
-  "AutoStartTimer": 0,
-  "MinAutoStartPlayers": "2",
-  "AddAutoStartTimeOnPlayerJoin": 20
-}
-EOF
-
+function create_admin_file {
 cat <<EOF > $ADMIN_SETTINGS_FILE
 {
-    "AdminList": [
+     "AdminList": [
      {
       "steamId": "76561197972138706",
       "name": "Misultin",
@@ -276,21 +269,19 @@ cat <<EOF > $ADMIN_SETTINGS_FILE
     "BanList": []
 }
 EOF
+}
 
-  if [ -n "${server_admin_list}" ]; then
-    IFS=';' read -ra server_admins <<< "${server_admin_list}"
+function create_server_settings_file {
+cat <<EOF > $SERVER_SETTINGS_FILE
+{
+  "AutoStartTimer": 0,
+  "MinAutoStartPlayers": "2",
+  "AddAutoStartTimeOnPlayerJoin": 20
+}
+EOF
+}
 
-    for server_admin in "${server_admins[@]}"
-    do
-        admin_steam_id="${server_admin%=*}"
-        admin_name="${server_admin#*=}"
-        printf "\t> Adding '${admin_name}' with steam id '${admin_steam_id}' to admins\n"
-        fn_set_admin_json_config_value '.AdminList' "\"${admin_steam_id}\"" "\"${admin_name}\"" "\"Admin\"" "${ADMIN_SETTINGS_FILE}"
-
-     done
-  fi
-
-
+function create_dedicated_settings_file {
   # settings here will be overriden later
 cat <<EOF > $DEDICATED_SETTINGS_FILE
 {
@@ -299,11 +290,74 @@ cat <<EOF > $DEDICATED_SETTINGS_FILE
     "ServerPassword": ""
 }
 EOF
+}
 
+function update_dedicated_settings_file {
   # set the properties using jq to avoid escape problems
   fn_set_json_config_value '.ServerName' "${server_name}" "${DEDICATED_SETTINGS_FILE}"
   fn_set_json_config_value '.MaxPlayerCount' "${server_max_players}" "${DEDICATED_SETTINGS_FILE}"
   fn_set_json_config_value '.ServerPassword' "${server_password}" "${DEDICATED_SETTINGS_FILE}"
+}
+
+function create_server_roles {
+if [ -n "${server_admin_list}" ]; then
+    if [[ -z "${admin_settings_content// }" ]]; then
+        echo "Admin settings are empty or do not exist. Creating default settings."
+        if [ ! -d ${SERVER_SETTINGS_DIR} ]; then
+	   mkdir -p "${SERVER_SETTINGS_DIR}"
+  	fi
+        create_admin_file
+    fi
+
+    echo "Found server roles: ${server_admin_list}"
+    IFS=';' read -ra server_roles <<< "${server_admin_list}"
+
+    for server_role in "${server_roles[@]}"
+    do
+        IFS='|' read -ra role_parts <<< "${server_role}"
+
+        if [[ ${#role_parts[@]} -ne 3 ]]; then
+            echo "Invalid value for server roles. There have to be exactly 3 parts in '${server_role}' separated by '|'. SteamId|Name|Role"
+            exit 1
+        fi
+
+        entry_steam_id="${role_parts[0]}"
+        entry_name="${role_parts[1]}"
+        entry_role="${role_parts[2]}"
+
+        printf "\t> Adding '${entry_name}' with steam id '${entry_steam_id}' as '${entry_role}'\n"
+
+        fn_remove_role_from_json_config "$entry_steam_id" $ADMIN_SETTINGS_FILE
+        fn_add_role_to_json_config "$entry_steam_id" "${entry_name}" "${entry_role}" $ADMIN_SETTINGS_FILE
+    done
+fi
+}
+
+
+
+fn_configure_exfil() {
+  echo "##############################"
+  echo "### Creating Config Files: "
+  echo "##############################"
+
+  SERVER_SETTINGS_DIR=${exfil_user_home}/exfil-dedicated/Exfil/Saved/ServerSettings
+  SERVER_SETTINGS_FILE=${SERVER_SETTINGS_DIR}/ServerSettings.JSON
+  DEDICATED_SETTINGS_FILE=${SERVER_SETTINGS_DIR}/DedicatedSettings.JSON
+  ADMIN_SETTINGS_FILE=${SERVER_SETTINGS_DIR}/AdminSettings.JSON
+
+  if [ ! -d ${SERVER_SETTINGS_DIR} ]; then
+  	mkdir -p "${SERVER_SETTINGS_DIR}"
+  fi
+  sudo -u ${exfil_user} echo "vi ${SERVER_SETTINGS_FILE}" > ${exfil_user_home}/edit_server_config && chmod +x ${exfil_user_home}/edit_server_config
+  sudo -u ${exfil_user} echo "vi ${DEDICATED_SETTINGS_FILE}" > ${exfil_user_home}/edit_dedicated_config && chmod +x ${exfil_user_home}/edit_dedicated_config
+  sudo -u ${exfil_user} echo "vi ${ADMIN_SETTINGS_FILE}" > ${exfil_user_home}/edit_admin_config && chmod +x ${exfil_user_home}/edit_admin_config
+  sudo -u ${exfil_user} echo "/usr/games/steamcmd +force_install_dir ${exfil_user_home}/exfil-dedicated +login ${steam_user_name} '${steam_user_password}' +app_update ${steam_app_id} +quit && ${exfil_user_home}/exfil-dedicated/ExfilServer.sh -port=${server_port} -QueryPort=${query_port}"  > ${exfil_user_home}/start_exfil_service && chmod +x ${exfil_user_home}/start_exfil_service
+
+  create_dedicated_settings_file
+  create_server_settings_file
+  create_admin_file
+  update_dedicated_settings_file
+  create_server_roles
 
   chown -R ${exfil_user}:${exfil_user} /home/${exfil_user}
 
@@ -395,7 +449,7 @@ fn_install_cronjob() {
 
   echo "########################"
   echo "### Cron installed at: "
-  echo "### /etc/cron.hourly/exfil_${exfil_user}_version_check "
+  echo "### /etc/cron.hourly/${exfil_cron_name} "
   echo "########################"
 }
 
@@ -442,6 +496,7 @@ fn_print_complete() {
 ##################
 # End: Functions #
 ##################
+
 
 fn_startup ${1}
 fn_ask_collect_info
