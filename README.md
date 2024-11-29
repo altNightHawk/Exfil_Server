@@ -111,7 +111,12 @@
 
 ### Prerequisites
 
-Working Ubunutu installation with root access
+Working Ubuntu installation with root access
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- USAGE EXAMPLES -->
+## Usage
 
 ### Interactive Installation
 1. wget  https://github.com/altNightHawk/Exfil_Server/archive/refs/tags/Exfil_Server-v1.0.3.tar.gz
@@ -130,23 +135,6 @@ Working Ubunutu installation with root access
 5. edit exfil.env
 6. ./install_exfil_server.sh exfil.env
 7. start your server
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-<!-- USAGE EXAMPLES -->
-## Usage
-
-## Install Exfil Server Interactive
-
-./install_exfil_server.sh
-
-
-## Install Exfil Server automatic 
-
-edit exfil.env and set your options
-
-./install_exfil_server.sh exfil.env
 
 ## Reminders
 
@@ -177,7 +165,9 @@ See the [open issues](https://github.com/altNightHawk/Exfil_Server/issues) for a
 <!-- CONTRIBUTING -->
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. 
+
+Any contributions you make are **greatly appreciated**.
 
 If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
 Don't forget to give the project a star! Thanks again!
