@@ -223,7 +223,7 @@ fn_install_exfil() {
 
   exfil_user_home=$(fn_get_home_dir ${exfil_user})
   cd ${exfil_user_home}
-  sudo -u ${exfil_user} /usr/games/steamcmd +force_install_dir ${exfil_user_home}/exfil-dedicated +login +app_update ${steam_app_id} +quit
+  sudo -u ${exfil_user} /usr/games/steamcmd +force_install_dir ${exfil_user_home}/exfil-dedicated +login anonymous +app_update ${steam_app_id} +quit
 
   if [ -e ${exfil_user_home}/.steam/sdk64/steamclient.so ]; then
     echo " steamclient.so symlink already exists"
@@ -339,7 +339,7 @@ fn_configure_exfil() {
   sudo -u ${exfil_user} echo "vi ${SERVER_SETTINGS_FILE}" > ${exfil_user_home}/edit_server_config && chmod +x ${exfil_user_home}/edit_server_config
   sudo -u ${exfil_user} echo "vi ${DEDICATED_SETTINGS_FILE}" > ${exfil_user_home}/edit_dedicated_config && chmod +x ${exfil_user_home}/edit_dedicated_config
   sudo -u ${exfil_user} echo "vi ${ADMIN_SETTINGS_FILE}" > ${exfil_user_home}/edit_admin_config && chmod +x ${exfil_user_home}/edit_admin_config
-  sudo -u ${exfil_user} echo "/usr/games/steamcmd +force_install_dir ${exfil_user_home}/exfil-dedicated +login +app_update ${steam_app_id} +quit && ${exfil_user_home}/exfil-dedicated/ExfilServer.sh -port=${server_port} -QueryPort=${query_port}"  > ${exfil_user_home}/start_exfil_service && chmod +x ${exfil_user_home}/start_exfil_service
+  sudo -u ${exfil_user} echo "/usr/games/steamcmd +force_install_dir ${exfil_user_home}/exfil-dedicated +login anonymous +app_update ${steam_app_id} +quit && ${exfil_user_home}/exfil-dedicated/ExfilServer.sh -port=${server_port} -QueryPort=${query_port}"  > ${exfil_user_home}/start_exfil_service && chmod +x ${exfil_user_home}/start_exfil_service
 
   create_dedicated_settings_file
   create_server_settings_file
@@ -392,7 +392,7 @@ fn_write_cronjob_file() {
     local_buildid=\$(grep -oP  'buildid.+?"\K[0-9]+' \${exfil_user_home}/exfil-dedicated/steamapps/appmanifest_\${steam_app_id}.acf)
     echo "Local Build: " \$local_buildid
 
-    remote_buildid=\$(steamcmd +login +app_info_update 1 +app_info_print \${steam_app_id} +quit | grep -oPz '(?s)"branches"\s+{\s+"public"\s+{\s+"buildid"\s+"\d+"' | grep -aoP  'buildid.+?"\K[0-9]+')
+    remote_buildid=\$(steamcmd +login anonymous +app_info_update 1 +app_info_print \${steam_app_id} +quit | grep -oPz '(?s)"branches"\s+{\s+"public"\s+{\s+"buildid"\s+"\d+"' | grep -aoP  'buildid.+?"\K[0-9]+')
     echo "Remote Build: " \$remote_buildid
 
     if [ "\${remote_buildid}" = "\${local_buildid}" ]; then
