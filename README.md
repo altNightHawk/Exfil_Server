@@ -84,10 +84,18 @@
 
 
 <!-- ABOUT THE PROJECT -->
-<!--
+
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+Script to easily install Exfil Server on Ubuntu
+
+Get Exfil:
+
+https://store.steampowered.com/app/860020/EXFIL/
+
+Join the Offical Exfil Discord Community:
+
+https://discord.gg/playexfil
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -100,7 +108,7 @@
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
--->
+
 
 
 
