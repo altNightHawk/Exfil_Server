@@ -105,6 +105,7 @@
 
 
 <!-- GETTING STARTED -->
+
 ## Getting Started
 
 
@@ -133,21 +134,27 @@ Working Ubunutu installation with root access
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Install Exfil Server Interactive
+## Install Exfil Server Interactive
 
 ./install_exfil_server.sh
 
 
-Install Exfil Server automatic edit exfil.env and set your options
+## Install Exfil Server automatic 
+
+edit exfil.env and set your options
 
 ./install_exfil_server.sh exfil.env
 
+## Reminders
 
 Full Install can include service setup and an auto-update cron.
+
+Do not forget to open the ports you chose.
+
+Defaults: 7777 and 27015
 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
