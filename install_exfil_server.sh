@@ -52,7 +52,7 @@ fn_get_user_input() {
     # $3 = optional default value
 
     echo -n "${1} "
-    read l_user_input
+    read l_user_inputlogin
 
 
     if [ -n "${3}" ] && [ -z "${l_user_input}" ]; then
@@ -176,6 +176,7 @@ fn_ask_collect_info() {
   [ -n "${server_port}" ] || fn_get_user_input "Server Port (optional, default: 7777)?:" server_port 7777
   [ -n "${query_port}" ] || fn_get_user_input "Server Query Port (optional, default: 27015)?:" query_port 27015
   [ -n "${server_admin_list}" ] || fn_get_user_input "Additional Server Admins (optional, default: none, format: SteamID1=Name1;SteamID2=Name;SteamID3=Name3)?:" server_admin_list
+  [ -n "${steam_branch}" ] || fn_get_user_input "Steam Branch (default: public)?:" steam_branch
 }
 
 fn_install_steam() {
@@ -339,7 +340,7 @@ fn_configure_exfil() {
   sudo -u ${exfil_user} echo "vi ${SERVER_SETTINGS_FILE}" > ${exfil_user_home}/edit_server_config && chmod +x ${exfil_user_home}/edit_server_config
   sudo -u ${exfil_user} echo "vi ${DEDICATED_SETTINGS_FILE}" > ${exfil_user_home}/edit_dedicated_config && chmod +x ${exfil_user_home}/edit_dedicated_config
   sudo -u ${exfil_user} echo "vi ${ADMIN_SETTINGS_FILE}" > ${exfil_user_home}/edit_admin_config && chmod +x ${exfil_user_home}/edit_admin_config
-  sudo -u ${exfil_user} echo "/usr/games/steamcmd +force_install_dir ${exfil_user_home}/exfil-dedicated +login anonymous +app_update ${steam_app_id} +quit && ${exfil_user_home}/exfil-dedicated/ExfilServer.sh -port=${server_port} -QueryPort=${query_port}"  > ${exfil_user_home}/start_exfil_service && chmod +x ${exfil_user_home}/start_exfil_service
+  sudo -u ${exfil_user} echo "/usr/games/steamcmd +force_install_dir ${exfil_user_home}/exfil-dedicated +login anonymous +app_update ${steam_app_id} -beta "${steam_branch}" +quit && ${exfil_user_home}/exfil-dedicated/ExfilServer.sh -port=${server_port} -QueryPort=${query_port}"  > ${exfil_user_home}/start_exfil_service && chmod +x ${exfil_user_home}/start_exfil_service
 
   create_dedicated_settings_file
   create_server_settings_file
@@ -359,49 +360,51 @@ fn_configure_exfil() {
 
 fn_write_service_file() {
   cat <<EOF > /etc/systemd/system/${exfil_service_name}.service
-    [Unit]
-    Description=Exfil dedicated server
-    After=network.target
-    StartLimitIntervalSec=0
+[Unit]
+Description=Exfil dedicated server
+After=network.target
+StartLimitIntervalSec=0
 
-    [Service]
-    Type=simple
-    Restart=always
-    RestartSec=5
-    User=${exfil_user}
-    ExecStart=/bin/bash ${exfil_user_home}/start_exfil_service
+[Service]
+Type=simple
+Restart=always
+RestartSec=5
+User=${exfil_user}
+ExecStart=/bin/bash ${exfil_user_home}/start_exfil_service
 
-    [Install]
-    WantedBy=multi-user.target
+[Install]
+WantedBy=multi-user.target
 EOF
 }
 
 fn_write_cronjob_file() {
   cat <<EOF > /etc/cron.hourly/${exfil_cron_name}
-    #!/bin/bash
-    ##############
-    ###Configs####
-    ##############
-    steam_app_id=${steam_app_id}
-    exfil_user_home=${exfil_user_home}
-    exfil_service_name=${exfil_service_name}.service
-    #################
-    ###End Configs###
-    #################
+#!/bin/bash
+##############
+###Configs####
+##############
+steam_app_id=${steam_app_id}
+exfil_user_home=${exfil_user_home}
+exfil_service_name=${exfil_service_name}.service
+####Default steam_branch=public
+steam_branch=public
+#################
+###End Configs###
+#################
 
-    local_buildid=\$(grep -oP  'buildid.+?"\K[0-9]+' \${exfil_user_home}/exfil-dedicated/steamapps/appmanifest_\${steam_app_id}.acf)
-    echo "Local Build: " \$local_buildid
+local_buildid=\$(grep -oP  'buildid.+?"\K[0-9]+' \${exfil_user_home}/exfil-dedicated/steamapps/appmanifest_\${steam_app_id}.acf)
+echo "Local Build: " \$local_buildid
 
-    remote_buildid=\$(steamcmd +login anonymous +app_info_update 1 +app_info_print \${steam_app_id} +quit | grep -oPz '(?s)"branches"\s+{\s+"public"\s+{\s+"buildid"\s+"\d+"' | grep -aoP  'buildid.+?"\K[0-9]+')
-    echo "Remote Build: " \$remote_buildid
+remote_buildid=$(steamcmd +login anonymous +app_info_update 1 +app_info_print ${steam_app_id} +quit | grep -oPz "(?s)\"branches\"\s+{.*?\"${steam_branch}\"\s+{\s+\"buildid\"\s+\"\d+\"" | grep -aoP 'buildid.+?"\K[0-9]+' | tail -n 1)
+echo "Remote Build: " \$remote_buildid
 
-    if [ "\${remote_buildid}" = "\${local_buildid}" ]; then
-      echo "Exfil (\${steam_app_id}) is up to date"
-    else
-      echo "Exfil (\${steam_app_id}) is not up to date."
-      echo "Going to restart ExfilServer process"
-      systemctl restart \${exfil_service_name}
-    fi
+if [ "\${remote_buildid}" = "\${local_buildid}" ]; then
+  echo "Exfil (\${steam_app_id}) is up to date"
+else
+  echo "Exfil (\${steam_app_id}) is not up to date."
+  echo "Going to restart ExfilServer process"
+  systemctl restart \${exfil_service_name}
+fi
 EOF
 
   chmod +x /etc/cron.hourly/${exfil_cron_name}
