@@ -86,8 +86,11 @@
 <!-- ABOUT THE PROJECT -->
 
 ## About The Project
+This is a Script to easily install Exfil Server on Ubuntu
 
-Script to easily install Exfil Server on Ubuntu
+What is Exfil?
+
+A realism-focused milsim, combining sandbox elements and tactical round-based FPS gameplay. Up to four teams of eight battle to secure objectives in short, customizable, single-life matches. Enjoy self-hosted or dedicated server options, ensuring you and your community can always access the action.
 
 Get Exfil:
 
@@ -127,18 +130,18 @@ Working Ubuntu installation with root access
 ## Usage
 
 ### Interactive Installation
-1. wget  https://github.com/altNightHawk/Exfil_Server/archive/refs/tags/Exfil_Server-v1.0.4.tar.gz
-2. tar -xvf Exfil_Server.v1.0.4.tar.gz
-3. cd Exfil_Server-1.0.4
+1. wget  https://github.com/altNightHawk/Exfil_Server/archive/refs/tags/Exfil_Server-v1.0.5.tar.gz
+2. tar -xvf Exfil_Server.v1.0.5.tar.gz
+3. cd Exfil_Server-1.0.5
 4. chmod +x install_exfil_server.sh
 5. ./install_exfil_server.sh
 6. answer the prompts
 7. start your server
 
 ### Automatic Installation
-1. wget  https://github.com/altNightHawk/Exfil_Server/archive/refs/tags/Exfil_Sever-v1.0.4.tar.gz
-2. tar -xvf Exfil_Server-v1.0.4.tar.gz
-3. cd Exfil_Server-1.0.4
+1. wget  https://github.com/altNightHawk/Exfil_Server/archive/refs/tags/Exfil_Sever-v1.0.5.tar.gz
+2. tar -xvf Exfil_Server-v1.0.5.tar.gz
+3. cd Exfil_Server-1.0.5
 4. chmod +x install_exfil_server.sh 
 5. edit exfil.env
 6. ./install_exfil_server.sh exfil.env
@@ -152,6 +155,8 @@ Do not forget to open the ports you chose.
 
 Defaults: 7777 and 27015
 
+Default Config file examples are now included.
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -161,7 +166,6 @@ Defaults: 7777 and 27015
 ## Roadmap
 
 - [ ] Adding community.JSON
-- [ ] Supporting dev branches
 - [ ] Adding all new server features as the team deploys them
 
 See the [open issues](https://github.com/altNightHawk/Exfil_Server/issues) for a full list of proposed features (and known issues).
