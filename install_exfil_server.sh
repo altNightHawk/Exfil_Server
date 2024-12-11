@@ -395,7 +395,7 @@ steam_branch=public
 local_buildid=\$(grep -oP  'buildid.+?"\K[0-9]+' \${exfil_user_home}/exfil-dedicated/steamapps/appmanifest_\${steam_app_id}.acf)
 echo "Local Build: " \$local_buildid
 
-remote_buildid=$(steamcmd +login anonymous +app_info_update 1 +app_info_print ${steam_app_id} +quit | grep -oPz "(?s)\"branches\"\s+{.*?\"${steam_branch}\"\s+{\s+\"buildid\"\s+\"\d+\"" | grep -aoP 'buildid.+?"\K[0-9]+' | tail -n 1)
+remote_buildid=\$(steamcmd +login anonymous +app_info_update 1 +app_info_print \${steam_app_id} +quit | grep -oPz "(?s)\"branches\"\s+{.*?\"\${steam_branch}\"\s+{\s+\"buildid\"\s+\"\d+\"" | grep -aoP 'buildid.+?"\K[0-9]+' | tail -n 1)
 echo "Remote Build: " \$remote_buildid
 
 if [ "\${remote_buildid}" = "\${local_buildid}" ]; then

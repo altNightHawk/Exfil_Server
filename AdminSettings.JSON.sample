@@ -1,0 +1,31 @@
+{
+  "AdminList": [
+    {
+      "steamId": "00000000000000000",
+      "name": "Name",
+      "adminLevel": "Admin"
+    },
+    {
+      "steamId": "00000000000000000",
+      "name": "Name",
+      "adminLevel": "Moderator"
+    },
+    {
+      "steamId": "00000000000000000",
+      "name": "Name",
+      "adminLevel": "Moderator"
+    }
+  ],
+  "BanList": [
+    {
+      "steamId": "00000000000000000",
+      "name": "Name",
+      "banEnd": "2024.11.16-23.30.33"
+    },
+    {
+      "steamId": "00000000000000000",
+      "name": "Name",
+      "banEnd": "2024.11.17-01.31.13"
+    }
+  ]
+}

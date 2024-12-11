@@ -1,0 +1,5 @@
+{
+  "AutoStartTimer": 0,
+  "MinAutoStartPlayers": 2,
+  "AddAutoStartTimeOnPlayerJoin": 20
+}
