@@ -1,5 +1,10 @@
 {
-  "AutoStartTimer": 0,
+  "AutoStartTimer": 60,
   "MinAutoStartPlayers": 2,
-  "AddAutoStartTimeOnPlayerJoin": 20
+  "AddAutoStartTimeOnPlayerJoin": 20,
+  "SpectatorTeamOpen": true,
+  "AFKKickTimer": 120,
+  "VoteKickPlayerPercentThreshold": 80,
+  "VoteKickCooldown": 120,
+  "VoteKickDuration": 15
 }

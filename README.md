@@ -130,18 +130,18 @@ Working Ubuntu installation with root access
 ## Usage
 
 ### Interactive Installation
-1. wget  https://github.com/altNightHawk/Exfil_Server/archive/refs/tags/Exfil_Server-v1.0.5.tar.gz
-2. tar -xvf Exfil_Server.v1.0.5.tar.gz
-3. cd Exfil_Server-1.0.5
+1. wget  https://github.com/altNightHawk/Exfil_Server/archive/refs/tags/Exfil_Server-v1.0.6.tar.gz
+2. tar -xvf Exfil_Server.v1.0.6.tar.gz
+3. cd Exfil_Server-1.0.6
 4. chmod +x install_exfil_server.sh
 5. ./install_exfil_server.sh
 6. answer the prompts
 7. start your server
 
 ### Automatic Installation
-1. wget  https://github.com/altNightHawk/Exfil_Server/archive/refs/tags/Exfil_Sever-v1.0.5.tar.gz
-2. tar -xvf Exfil_Server-v1.0.5.tar.gz
-3. cd Exfil_Server-1.0.5
+1. wget  https://github.com/altNightHawk/Exfil_Server/archive/refs/tags/Exfil_Sever-v1.0.6.tar.gz
+2. tar -xvf Exfil_Server-v1.0.6.tar.gz
+3. cd Exfil_Server-1.0.6
 4. chmod +x install_exfil_server.sh 
 5. edit exfil.env
 6. ./install_exfil_server.sh exfil.env
