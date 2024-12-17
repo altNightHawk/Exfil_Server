@@ -263,14 +263,9 @@ EOF
 function create_server_settings_file {
 cat <<EOF > $SERVER_SETTINGS_FILE
 {
-  "AutoStartTimer": 60,
+  "AutoStartTimer": 0,
   "MinAutoStartPlayers": "2",
   "AddAutoStartTimeOnPlayerJoin": 20
-  "SpectatorTeamOpen":"true"
-  "AFKKickTimer":"120"
-  "VoteKickPlayerPercentThreshold":"80"
-  "VoteKickCooldown":"120"
-  "VoteKickDuration":"15"
 }
 EOF
 }
